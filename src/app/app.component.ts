@@ -1,31 +1,98 @@
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { map } from 'rxjs/operators/map';
 
 @Component({
   selector: 'app-root',
   template: `
-    <!--The content below is only a placeholder and can be replaced.-->
-    <div style="text-align:center">
-      <h1>
-        Welcome to {{title}}!
-      </h1>
-      <img width="300" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-    </div>
-    <h2>Here are some links to help you start: </h2>
-    <ul>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli/wiki">CLI Documentation</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-      </li>
-    </ul>
-    
+      <!--The content below is only a placeholder and can be replaced.-->
+      <div class="container"
+           [ngClass]="containerClass">
+
+          <div id="mobile"
+               *ngIf="isMobile | async">This is Mobile View
+          </div>
+          <div id="mobile-landscape"
+               *ngIf="isMobileLandscape | async">This is Mobile Landscape View
+          </div>
+
+          <div id="tablet"
+               *ngIf="isTablet | async">This is Tablet View
+          </div>
+          <div id="tablet-landscape"
+               *ngIf="isTabletLandscape | async">This is Tablet Landscape View
+          </div>
+
+          <div id="desktop"
+               *ngIf="isDesktop | async">This is Desktop View
+          </div>
+
+      </div>
+
   `,
-  styles: []
+  styles: [
+      `
+          .container {
+              height: 100%;
+              display: flex;
+              justify-content: center;
+              align-content: center;
+              flex-direction: column;
+              background-color: #fff;
+          }
+
+          .container div {
+              text-align: center;
+          }
+
+          .desktop {
+              width: 960px;
+              margin: 0 auto;
+          }
+    `,
+  ],
 })
 export class AppComponent {
-  title = 'app';
+  isMobile: Observable<boolean>;
+  isMobileLandscape: Observable<boolean>;
+  isTablet: Observable<boolean>;
+  isTabletLandscape: Observable<boolean>;
+  isDesktop: Observable<boolean>;
+
+  constructor(private breakpointObserver: BreakpointObserver) {
+
+    this.isMobile = breakpointObserver.observe([
+      Breakpoints.HandsetPortrait,
+    ]).pipe(map(result => result.matches));
+    this.isMobileLandscape = breakpointObserver.observe([
+      Breakpoints.HandsetLandscape,
+    ]).pipe(map(result => result.matches));
+
+    this.isTablet = breakpointObserver.observe([
+      Breakpoints.TabletPortrait,
+    ]).pipe(map(result => result.matches));
+    this.isTabletLandscape = breakpointObserver.observe([
+      Breakpoints.TabletLandscape,
+    ]).pipe(map(result => result.matches));
+
+    this.isDesktop = breakpointObserver.observe([
+      Breakpoints.Web,
+    ]).pipe(map(result => result.matches));
+
+  }
+
+  get containerClass() {
+    let media = 'desktop';
+    if ( this.breakpointObserver.isMatched(Breakpoints.HandsetPortrait) ) {
+      media = 'mobile';
+    } else if ( this.breakpointObserver.isMatched(Breakpoints.HandsetLandscape) ) {
+      media = 'mobile-landscape';
+    } else if ( this.breakpointObserver.isMatched(Breakpoints.TabletPortrait) ) {
+      media = 'tablet';
+    } else if ( this.breakpointObserver.isMatched(Breakpoints.TabletLandscape) ) {
+      media = 'tablet-landscape';
+    }
+    return media;
+  }
 }
