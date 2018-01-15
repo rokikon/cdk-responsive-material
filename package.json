@@ -5,7 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --host=0.0.0.0",
-    "build": "ng build --prod",
+    "build": "ng build --prod --build-optimizer",
     "deploy": "ng build --prod --output-path docs --base-href cdk-responsive-material",
     "test": "ng test",
     "lint": "ng lint",
